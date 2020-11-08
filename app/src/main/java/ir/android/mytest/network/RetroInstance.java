@@ -1,6 +1,7 @@
 package ir.android.mytest.network;
 
 import ir.android.mytest.model.RetroUser;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -11,7 +12,7 @@ import retrofit2.http.Query;
 public class RetroInstance {
 
     private static Retrofit retrofit;
-    private static final String BASE_URL = "https://api.alirezanamazi.ir";
+    private static final String BASE_URL = "https://alirezanamazi.ir/api/";
 
 
     public static Retrofit getRetrofitInstance() {
@@ -25,16 +26,16 @@ public class RetroInstance {
     }
 
     public interface UserService {
-        @GET("/users/login/email")
-        Call<String> setCode(@Query("email") String email);
+        @GET("user/login/email")
+        Call<ResponseBody> setCode(@Query("email") String email);
 
-        @GET("/users/login/{email}")
-        Call<String> checkCode(@Path("email") String email, @Query("code") String code);
+        @GET("user/login/{email}/")
+        Call<ResponseBody> checkCode(@Path("email") String email, @Query("code") String code);
 
-        @GET("/users/login/{email}/{token}")
-        Call<String> setName(@Path("email") String email, @Query("token") String token,@Query("name") String name);
+        @GET("user/{email}/{token}/")
+        Call<ResponseBody> setName(@Path("email") String email, @Query("token") String token,@Query("name") String name);
 
-        @GET("/users/{email}/{token}")
+        @GET("user/{email}/{token}/")
         Call<RetroUser> getInfo(@Path("email") String email, @Path("token") String token);
 
     }

@@ -10,11 +10,14 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
+
 import ir.android.mytest.R;
 import ir.android.mytest.model.RetroUser;
 import ir.android.mytest.util.AndroidAPI;
 import ir.android.mytest.network.RetroInstance;
 import ir.android.mytest.util.Setting;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -87,10 +90,10 @@ public class MainActivity extends AppCompatActivity {
         RetroInstance.UserService service=RetroInstance.getRetrofitInstance().create(RetroInstance.UserService.class);
         switch (step){
             case 0:
-                Call<String> call=service.setCode(value);
-                call.enqueue(new Callback<String>() {
+                Call<ResponseBody> call=service.setCode(value);
+                call.enqueue(new Callback<ResponseBody>() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                         step=1;
                         setting.put("email",value);
                         uiManager.setHint("check your email and enter code");
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<String> call, Throwable t) {
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
                         uiManager.setHint(t.getMessage());
                         uiManager.loading(false);
                     }
@@ -107,18 +110,21 @@ public class MainActivity extends AppCompatActivity {
 
 
             case 1:
-                Call<String> call1=service.checkCode(setting.get("email",""),value);
-                call1.enqueue(new Callback<String>() {
+                Call<ResponseBody> call1=service.checkCode(setting.get("email",""),value);
+                call1.enqueue(new Callback<ResponseBody>() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        step=2;
-                        setting.put("token",response.body());
-                        uiManager.setHint("enter your name");
-                        uiManager.loading(false);
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        try {
+                            step=2;
+                            setting.put("token",response.body().string());
+                            uiManager.setHint("enter your name");
+                            uiManager.loading(false);
+                        }catch (IOException i){}
+
                     }
 
                     @Override
-                    public void onFailure(Call<String> call, Throwable t) {
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
                         uiManager.setHint("try again");
                         uiManager.loading(false);
                     }
@@ -127,21 +133,21 @@ public class MainActivity extends AppCompatActivity {
 
 
             case 2:
-                Call<String> call2=service.setName(
+                Call<ResponseBody> call2=service.setName(
                         setting.get("email",""),
                         setting.get("token",""),
                         value);
 
-                call2.enqueue(new Callback<String>() {
+                call2.enqueue(new Callback<ResponseBody>() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                         //start activity
                         setting.put("name",value);
                         startActivity();
                     }
 
                     @Override
-                    public void onFailure(Call<String> call, Throwable t) {
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
                         uiManager.setHint("try again");
                         uiManager.loading(false);
                     }
@@ -160,13 +166,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<RetroUser> call, Response<RetroUser> response) {
                 setting.put("checkLogin","1");
-                Intent intent=new Intent();
-                intent.putExtra("name",response.body().getName());
+                Intent intent=new Intent(MainActivity.this, ir.android.mytest.activity.MainActivity.MainActivity.class);
+                intent.putExtra("name",response.body().getEmail());
+                startActivity(intent);
             }
 
             @Override
             public void onFailure(Call<RetroUser> call, Throwable t) {
-
+                uiManager.setHint("try again +");
+                uiManager.loading(false);
             }
         });
     }
