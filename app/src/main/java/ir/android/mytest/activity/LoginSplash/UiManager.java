@@ -49,6 +49,7 @@ public class UiManager {
             @Override
             public void onAnimationRepeat(Animator animation) {
                 f.pauseAnimation();
+                showSplash();
             }
         });
 
@@ -74,10 +75,10 @@ public class UiManager {
 
             @Override
             public void onFinish() {
-                loadLayout.setVisibility(View.INVISIBLE);
+                loadLayout.setVisibility(View.GONE);
                 listener.onFinishSplash();
             }
-        };
+        }.start();
     }
 
     //show login linear layout
@@ -103,8 +104,8 @@ public class UiManager {
         Button button =activity.findViewById(R.id.button_login);
         ProgressBar progressBar =activity.findViewById(R.id.progressBar);
 
-        button.setVisibility(show?View.INVISIBLE:View.VISIBLE);
-        progressBar.setVisibility(show?View.VISIBLE:View.INVISIBLE);
+        button.setVisibility(show?View.GONE:View.VISIBLE);
+        progressBar.setVisibility(show?View.VISIBLE:View.GONE);
     }
 
 }

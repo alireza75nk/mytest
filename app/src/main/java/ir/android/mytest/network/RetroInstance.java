@@ -25,7 +25,17 @@ public class RetroInstance {
     }
 
     public interface UserService {
-        @GET("users/login")
-        Call<RetroUser> login(@Query("email") String email);
+        @GET("/users/login/email")
+        Call<String> setCode(@Query("email") String email);
+
+        @GET("/users/login/{email}")
+        Call<String> checkCode(@Path("email") String email, @Query("code") String code);
+
+        @GET("/users/login/{email}/{token}")
+        Call<String> setName(@Path("email") String email, @Query("token") String token,@Query("name") String name);
+
+        @GET("/users/{email}/{token}")
+        Call<RetroUser> getInfo(@Path("email") String email, @Path("token") String token);
+
     }
 }
